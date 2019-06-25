@@ -3,18 +3,27 @@ package main
 import "fmt"
 
 func main() {
-	secretAgent{
-		fPerson: person{
-			name: "Leo",
-			age:  45,
+	say(
+		secretAgent{
+			fPerson: person{
+				name: "Leo",
+				age:  45,
+			},
+			licenseToKill: true,
 		},
-		licenseToKill: true,
-	}.speak()
+	)
+}
 
+func say(h human) {
+	h.speak()
 }
 
 func (p secretAgent) speak() {
 	fmt.Println(p.fPerson, "you can kill?", p.licenseToKill)
+}
+
+type human interface {
+	speak()
 }
 
 type secretAgent struct {
