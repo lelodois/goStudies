@@ -3,27 +3,19 @@ package main
 import (
 	"bufio"
 	"fmt"
-	"log"
 	"net"
 	"strings"
+	"time"
 )
 
 func main() {
 
-	listener, serverError := net.Listen("tcp", ":8081")
-
-	if serverError != nil {
-		log.Panic(serverError)
-	}
+	listener, _ := net.Listen("tcp", ":8081")
 
 	defer listener.Close()
 
 	for {
-		connection, connectionError := listener.Accept()
-
-		if connectionError != nil {
-			log.Println(connectionError)
-		}
+		connection, _ := listener.Accept()
 		go handle(connection)
 
 	}
@@ -33,10 +25,11 @@ func handle(conn net.Conn) {
 	scanner := bufio.NewScanner(conn)
 	for scanner.Scan() {
 		text := scanner.Text()
-		fmt.Println(text)
-		fmt.Fprintf(conn, "I heard you say: %s\n", text)
+		fmt.Fprintf(conn, "%s\tI heard you say: %s\n", time.Now().Format(time.RFC3339), text)
 		if strings.ToUpper(text) == "SAIR" {
 			break
+		} else {
+			conn.SetDeadline(time.Now().Add(10 * time.Second))
 		}
 	}
 	defer conn.Close()
