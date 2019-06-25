@@ -1,10 +1,11 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
-	"io"
 	"log"
 	"net"
+	"strings"
 )
 
 func main() {
@@ -23,11 +24,20 @@ func main() {
 		if connectionError != nil {
 			log.Println(connectionError)
 		}
+		go handle(connection)
 
-		_, _ = io.WriteString(connection, "\nHello from tcp\n")
-		_, _ = fmt.Fprintln(connection, "How are you?")
-		_, _ = fmt.Fprintf(connection, "%v", "Well, I hope!\n")
-
-		_ = connection.Close()
 	}
+}
+
+func handle(conn net.Conn) {
+	scanner := bufio.NewScanner(conn)
+	for scanner.Scan() {
+		text := scanner.Text()
+		fmt.Println(text)
+		fmt.Fprintf(conn, "I heard you say: %s\n", text)
+		if strings.ToUpper(text) == "SAIR" {
+			break
+		}
+	}
+	defer conn.Close()
 }
